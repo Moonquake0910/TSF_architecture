@@ -15,7 +15,8 @@ random_seed=2021
 
 # ! 注意：需要用"bash etth1.sh"调用而非"sh etth1.sh"来调用此script
 # for model_name in Encoder Encoder_overall Encoder_zeros Masked_encoder Prefix_decoder Decoder Transformer
-for model_name in Encoder Encoder_overall Encoder_zeros_flatten Encoder_zeros_no_flatten Masked_encoder_flatten Masked_encoder_no_flatten Prefix_decoder Decoder Transformer Double_encoder Double_decoder
+# for model_name in Encoder Encoder_overall Encoder_zeros_flatten Encoder_zeros_no_flatten Masked_encoder_flatten Masked_encoder_no_flatten Prefix_decoder Decoder Transformer Double_encoder Double_decoder
+for model_name in Encoder_overall
 do
 if [[ "$model_name" =~ "Encoder" || "$model_name" =~ "encoder" ]]; then
     e_layers=6
@@ -33,7 +34,8 @@ do
 for seq_len in 512
 do
 # for pred_len in 96
-for pred_len in 96 192 336 720
+# for pred_len in 96 192 336 720
+for pred_len in 96
 do
     if [ ! -d './script_outputs/' ]; then
         mkdir './script_outputs/'
@@ -63,6 +65,7 @@ do
       --des 'Exp' \
       --itr 1 \
       --train_epochs 20 \
+      --patience 2 \
       --patch_len 16 \
       --stride 16 \
       --gpu $gpu_num \

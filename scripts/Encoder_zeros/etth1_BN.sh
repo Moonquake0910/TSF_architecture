@@ -16,7 +16,6 @@ gpu_num=3
 
 random_seed=2021
 
-for model_name in Transformer
 for seq_len in 336
 do
 for pred_len in 96
