@@ -1258,3 +1258,12 @@ mse:0.11644323915243149, mae:0.21015974879264832, rse:0.33921533823013306, mape:
 electricity_256_48_Encoder_overall_custom_ftMS_sl256_ll48_pl48_dm512_nh8_el6_dl0_df2048_fc3_ebtimeF_dtTrue_foreFalse_Exp_0  
 mse:0.21449078619480133, mae:0.3396100401878357, rse:0.4526819586753845, mape:176.30067443847656
 
+mongolia_72_168_Encoder_overall_custom_ftS_sl72_ll48_pl168_dm512_nh8_el6_dl0_df2048_fc3_ebtimeF_dtTrue_foreFalse_Exp_0  
+mse:0.17431415617465973, mae:0.3389820158481598, rse:0.5717909932136536, mape:83.92544555664062
+
+mongolia_72_168_Encoder_overall_custom_ftS_sl72_ll48_pl168_dm512_nh8_el6_dl0_df2048_fc3_ebtimeF_dtTrue_foreFalse_Exp_0  
+mse:0.15670715272426605, mae:0.31833866238594055, rse:0.5421448945999146, mape:90.65655517578125
+
+mongolia_72_168_Encoder_overall_custom_ftS_sl72_ll48_pl168_dm512_nh8_el6_dl0_df2048_fc3_ebtimeF_dtTrue_foreFalse_Exp_0  
+mse:64168.87890625, mae:203.70767211914062, rse:0.5421438217163086, mape:3.3312697410583496
+
