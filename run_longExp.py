@@ -122,6 +122,7 @@ if __name__ == '__main__':
     
     parser.add_argument('--run_train', action='store_true')
     parser.add_argument('--run_test', action='store_true')
+    parser.add_argument('--inverse', action='store_true', help='inverse output data', default=False)
     parser.add_argument('--get_attn_plot', action='store_true')
     
     # 获得ACF-forecastability矩阵

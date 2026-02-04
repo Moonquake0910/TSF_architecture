@@ -993,10 +993,19 @@ class Exp_Main(Exp_Basic):
                 trues.append(true)
                 inputx.append(batch_x.detach().cpu().numpy())
                 if i % 20 == 0:
-                # if i % 1 == 0:
                     input = batch_x.detach().cpu().numpy()
-                    gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
-                    pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
+                    if test_data.scale and self.args.inverse:
+                        shape = input.shape
+                        # 只处理第一个样本用于可视化
+                        input_vis = test_data.inverse_transform(input[0])
+                        true_vis = test_data.inverse_transform(true[0])
+                        pred_vis = test_data.inverse_transform(pred[0])
+                        
+                        gt = np.concatenate((input_vis[:, -1], true_vis[:, -1]), axis=0)
+                        pd = np.concatenate((input_vis[:, -1], pred_vis[:, -1]), axis=0)
+                    else:
+                        gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
+                        pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
                     visual(gt, pd, os.path.join(folder_path, str(i) + '.pdf'))
 
         if self.args.test_flop:
@@ -1011,18 +1020,26 @@ class Exp_Main(Exp_Basic):
         trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
         inputx = inputx.reshape(-1, inputx.shape[-2], inputx.shape[-1])
         
+        # 如果需要逆归一化
+        if test_data.scale and self.args.inverse:
+            shape_preds = preds.shape
+            preds = test_data.inverse_transform(preds.reshape(-1, preds.shape[-1])).reshape(shape_preds)
+            trues = test_data.inverse_transform(trues.reshape(-1, trues.shape[-1])).reshape(shape_preds)
+
         print("preds.shape:", preds.shape)
 
         # result save
         folder_path = './results/' + setting + '/'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
+        
+        # dtw_calculation(preds, trues, folder_path)
 
         mae, mse, rmse, mape, mspe, rse, corr = metric(preds, trues)
-        print('mse:{}, mae:{}, rse:{}'.format(mse, mae, rse))
+        print('mse:{}, mae:{}, rse:{}, mape:{}'.format(mse, mae, rse, mape))
         f = open("result.txt", 'a')
         f.write(setting + "  \n")
-        f.write('mse:{}, mae:{}, rse:{}'.format(mse, mae, rse))
+        f.write('mse:{}, mae:{}, rse:{}, mape:{}'.format(mse, mae, rse, mape))
         f.write('\n')
         f.write('\n')
         f.close()

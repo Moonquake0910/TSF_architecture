@@ -31,11 +31,11 @@ fi
 # for norm in layer batch
 for norm in layer
 do
-for seq_len in 512
+for seq_len in 192
 do
 # for pred_len in 96
 # for pred_len in 96 192 336 720
-for pred_len in 96
+for pred_len in 48
 do
     if [ ! -d './script_outputs/' ]; then
         mkdir './script_outputs/'
@@ -65,7 +65,7 @@ do
       --des 'Exp' \
       --itr 1 \
       --train_epochs 20 \
-      --patience 2 \
+      --patience 3 \
       --patch_len 16 \
       --stride 16 \
       --gpu $gpu_num \

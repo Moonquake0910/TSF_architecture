@@ -2,7 +2,7 @@ import numpy as np
 
 
 def RSE(pred, true):
-    return np.sqrt(np.sum((true - pred) ** 2)) / np.sqrt(np.sum((true - true.mean()) ** 2))
+    return np.sqrt(np.sum((true - pred) ** 2)) / (np.sqrt(np.sum((true - true.mean()) ** 2)) + 1e-12)
 
 
 def CORR(pred, true):
@@ -25,11 +25,12 @@ def RMSE(pred, true):
 
 
 def MAPE(pred, true):
-    return np.mean(np.abs((pred - true) / true))
+    # 处理分母为0的情况，避免无穷大
+    return np.mean(np.abs((pred - true) / (true + 1e-12))) * 100
 
 
 def MSPE(pred, true):
-    return np.mean(np.square((pred - true) / true))
+    return np.mean(np.square((pred - true) / (true + 1e-12)))
 
 
 def metric(pred, true):
