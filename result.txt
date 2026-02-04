@@ -1267,3 +1267,87 @@ mse:0.15670715272426605, mae:0.31833866238594055, rse:0.5421448945999146, mape:9
 mongolia_72_168_Encoder_overall_custom_ftS_sl72_ll48_pl168_dm512_nh8_el6_dl0_df2048_fc3_ebtimeF_dtTrue_foreFalse_Exp_0  
 mse:64168.87890625, mae:203.70767211914062, rse:0.5421438217163086, mape:3.3312697410583496
 
+mongolia_72_168_Encoder_overall_custom_ftS_sl72_ll48_pl168_dm512_nh8_el6_dl0_df2048_fc3_ebtimeF_dtTrue_foreFalse_Exp_0  
+mse:64169.38671875, mae:203.70831298828125, rse:0.5421459674835205, mape:3.331280469894409
+
+mongolia_72_168_Encoder_overall_custom_ftS_sl72_ll48_pl168_dm512_nh8_el6_dl0_df2048_fc3_ebtimeF_dtTrue_foreFalse_Exp_0_rolling_test  
+mse:53783.9296875, mae:184.259033203125, rse:0.4969119429588318, mape:3.0192458629608154
+Original (without correction):
+mse:63781.85546875, mae:202.9445343017578, rse:0.5411301851272583, mape:3.317509651184082
+
+mongolia_72_168_Encoder_overall_custom_ftS_sl72_ll48_pl168_dm512_nh8_el6_dl0_df2048_fc3_ebtimeF_dtTrue_foreFalse_Exp_0  
+mse:64169.5078125, mae:203.70860290527344, rse:0.5421465039253235, mape:3.331284999847412
+
+mongolia_72_168_Encoder_overall_custom_ftS_sl72_ll48_pl168_dm512_nh8_el6_dl0_df2048_fc3_ebtimeF_dtTrue_foreFalse_Exp_0  
+mse:64168.91796875, mae:203.7075653076172, rse:0.5421440005302429, mape:3.3312692642211914
+
+mongolia_72_168_Encoder_overall_custom_ftS_sl72_ll48_pl168_dm512_nh8_el6_dl0_df2048_fc3_ebtimeF_dtTrue_foreFalse_Exp_0_rolling_test  
+mse:53783.00390625, mae:184.2573699951172, rse:0.49690768122673035, mape:3.019221067428589
+Original (without correction):
+mse:63781.37890625, mae:202.9438018798828, rse:0.5411281585693359, mape:3.3174984455108643
+
+mongolia_72_168_Encoder_overall_custom_ftS_sl72_ll48_pl168_dm512_nh8_el6_dl0_df2048_fc3_ebtimeF_dtTrue_foreFalse_Exp_0  
+mse:64169.32421875, mae:203.70819091796875, rse:0.5421457290649414, mape:3.331279754638672
+
+mongolia_72_168_Encoder_overall_custom_ftS_sl72_ll48_pl168_dm512_nh8_el6_dl0_df2048_fc3_ebtimeF_dtTrue_foreFalse_Exp_0  
+mse:64170.00390625, mae:203.70928955078125, rse:0.5421486496925354, mape:3.331296920776367
+
+mongolia_72_168_Encoder_overall_custom_ftS_sl72_ll48_pl168_dm512_nh8_el6_dl0_df2048_fc3_ebtimeF_dtTrue_foreFalse_Exp_0_rolling_test  
+mse:53783.74609375, mae:184.2586212158203, rse:0.49691110849380493, mape:3.0192413330078125
+Original (without correction):
+mse:63782.42578125, mae:202.9454345703125, rse:0.5411325693130493, mape:3.3175244331359863
+
+mongolia_72_168_Encoder_overall_custom_ftS_sl72_ll48_pl168_dm512_nh8_el6_dl0_df2048_fc3_ebtimeF_dtTrue_foreFalse_Exp_0  
+mse:64169.78125, mae:203.70895385742188, rse:0.5421476364135742, mape:3.331291675567627
+
+mongolia_72_168_Encoder_overall_custom_ftS_sl72_ll48_pl168_dm512_nh8_el6_dl0_df2048_fc3_ebtimeF_dtTrue_foreFalse_Exp_0  
+mse:64169.390625, mae:203.7083740234375, rse:0.5421460270881653, mape:3.3312816619873047
+
+mongolia_72_168_Encoder_overall_custom_ftS_sl72_ll48_pl168_dm512_nh8_el6_dl0_df2048_fc3_ebtimeF_dtTrue_foreFalse_Exp_0_rolling_test  
+mse:53783.546875, mae:184.25831604003906, rse:0.4969102144241333, mape:3.0192363262176514
+Original (without correction):
+mse:63781.875, mae:202.94464111328125, rse:0.5411303043365479, mape:3.317511558532715
+
+mongolia_72_168_Encoder_overall_custom_ftS_sl72_ll48_pl168_dm512_nh8_el6_dl0_df2048_fc3_ebtimeF_dtTrue_foreFalse_Exp_0  
+mse:64169.4375, mae:203.70831298828125, rse:0.5421462059020996, mape:3.3312809467315674
+
+mongolia_72_168_Encoder_overall_custom_ftS_sl72_ll48_pl168_dm512_nh8_el6_dl0_df2048_fc3_ebtimeF_dtTrue_foreFalse_Exp_0_rolling_test  
+mse:53783.90625, mae:184.25900268554688, rse:0.4969118535518646, mape:3.0192463397979736
+Original (without correction):
+mse:63781.875, mae:202.94451904296875, rse:0.5411303043365479, mape:3.317509889602661
+
+mongolia_72_168_Encoder_overall_custom_ftS_sl72_ll48_pl168_dm512_nh8_el6_dl0_df2048_fc3_ebtimeF_dtTrue_foreFalse_Exp_0  
+mse:64169.65625, mae:203.70883178710938, rse:0.542147159576416, mape:3.3312883377075195
+
+mongolia_72_168_Encoder_overall_custom_ftS_sl72_ll48_pl168_dm512_nh8_el6_dl0_df2048_fc3_ebtimeF_dtTrue_foreFalse_Exp_0_rolling_test  
+mse:53783.61328125, mae:184.25845336914062, rse:0.4969105124473572, mape:3.0192384719848633
+Original (without correction):
+mse:63782.08984375, mae:202.9450225830078, rse:0.5411311984062195, mape:3.317517042160034
+
+mongolia_72_168_Encoder_overall_custom_ftS_sl72_ll48_pl168_dm512_nh8_el6_dl0_df2048_fc3_ebtimeF_dtTrue_foreFalse_Exp_0  
+mse:64168.6796875, mae:203.7071990966797, rse:0.5421430468559265, mape:3.331263303756714
+
+mongolia_72_168_Encoder_overall_custom_ftS_sl72_ll48_pl168_dm512_nh8_el6_dl0_df2048_fc3_ebtimeF_dtTrue_foreFalse_Exp_0_rolling_test  
+mse:53782.78125, mae:184.25694274902344, rse:0.4969066381454468, mape:3.0192151069641113
+Original (without correction):
+mse:63781.1171875, mae:202.943359375, rse:0.5411270260810852, mape:3.3174917697906494
+
+mongolia_72_168_Encoder_overall_custom_ftS_sl72_ll48_pl168_dm512_nh8_el6_dl0_df2048_fc3_ebtimeF_dtTrue_foreFalse_Exp_0  
+mse:64168.8359375, mae:203.70755004882812, rse:0.542143702507019, mape:3.331267833709717
+
+mongolia_72_168_Encoder_overall_custom_ftS_sl72_ll48_pl168_dm512_nh8_el6_dl0_df2048_fc3_ebtimeF_dtTrue_foreFalse_Exp_0_rolling_test  
+mse:53782.70703125, mae:184.2569122314453, rse:0.4969063103199005, mape:3.019214153289795
+Original (without correction):
+mse:63781.28515625, mae:202.94378662109375, rse:0.5411277413368225, mape:3.317497968673706
+
+mongolia_72_168_Encoder_overall_custom_ftS_sl72_ll48_pl168_dm512_nh8_el6_dl0_df2048_fc3_ebtimeF_dtTrue_foreFalse_Exp_0  
+mse:64170.09375, mae:203.70947265625, rse:0.542149007320404, mape:3.331299066543579
+
+mongolia_72_168_Encoder_overall_custom_ftS_sl72_ll48_pl168_dm512_nh8_el6_dl0_df2048_fc3_ebtimeF_dtTrue_foreFalse_Exp_0  
+mse:64169.8515625, mae:203.70909118652344, rse:0.5421479344367981, mape:3.3312931060791016
+
+mongolia_72_168_Encoder_overall_custom_ftS_sl72_ll48_pl168_dm512_nh8_el6_dl0_df2048_fc3_ebtimeF_dtTrue_foreFalse_Exp_0_rolling_test  
+mse:53783.58203125, mae:184.25833129882812, rse:0.49691036343574524, mape:3.0192363262176514
+Original (without correction):
+mse:63782.33203125, mae:202.94534301757812, rse:0.5411322116851807, mape:3.3175230026245117
+

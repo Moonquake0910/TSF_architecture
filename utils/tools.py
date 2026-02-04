@@ -5,6 +5,19 @@ import time
 
 plt.switch_backend('agg')
 
+plt.rcParams['font.sans-serif'] = [
+    'SimSun',
+    'Microsoft YaHei',
+    'PingFang SC',
+    'STHeiti',
+    'Arial Unicode MS',
+    'DejaVu Sans',
+    'DengXian',
+    'KaiTi',
+    'FangSong'
+]
+plt.rcParams['axes.unicode_minus'] = False
+
 
 def adjust_learning_rate(optimizer, scheduler, epoch, args, printout=True):
     # lr = args.learning_rate * (0.2 ** (epoch // 2))
@@ -98,6 +111,29 @@ def visual(true, preds=None, name='./pic/test.pdf'):
         plt.plot(preds, label='Prediction', linewidth=2)
     plt.legend()
     plt.savefig(name, bbox_inches='tight')
+
+def visual_with_error_correction(true, pred_corrected=None, pred_origin=None, name='./pic/test.pdf'):
+    fig, ax = plt.subplots(1, 1, figsize=(16, 6))
+
+    window_len = 24
+    true = true[:window_len]
+
+    ax.plot(true, label='真实值', linewidth=2, marker='o', markersize=4)
+
+    if pred_origin is not None:
+        pred_origin = pred_origin[:window_len]
+        ax.plot(pred_origin, label='原始预测', linewidth=2, marker='o', markersize=4)
+
+    if pred_corrected is not None:
+        pred_corrected = pred_corrected[:window_len]
+        ax.plot(pred_corrected, label='修正预测', linewidth=2, marker='o', markersize=4)
+
+    ax.legend()
+    ax.set_title('误差修正前后对比')
+
+    plt.tight_layout()
+    plt.savefig(name, bbox_inches='tight')
+    plt.close()
 
 def test_params_flop(model,x_shape):
     """

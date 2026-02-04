@@ -72,6 +72,8 @@ do
       --gpu $gpu_num \
       --batch_size 32 \
       --run_train --run_test \
+      --run_rolling_test \
+      --error_len 24 \
       --norm $norm \
       > './script_outputs/'$model_id_name'_'$seq_len'_'$pred_len'/'$model_name'_'$norm'norm'.log
 done

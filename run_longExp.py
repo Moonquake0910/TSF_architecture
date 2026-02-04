@@ -34,6 +34,8 @@ if __name__ == '__main__':
     parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
     parser.add_argument('--label_len', type=int, default=48, help='start token length')
     parser.add_argument('--pred_len', type=int, default=96, help='prediction sequence length')
+    
+    parser.add_argument('--error_len', type=int, default=24, help='error length for rolling test with error correction')
 
 
     # DLinear
@@ -122,6 +124,7 @@ if __name__ == '__main__':
     
     parser.add_argument('--run_train', action='store_true')
     parser.add_argument('--run_test', action='store_true')
+    parser.add_argument('--run_rolling_test', action='store_true')
     parser.add_argument('--inverse', action='store_true', help='inverse output data', default=False)
     parser.add_argument('--get_attn_plot', action='store_true')
     
@@ -213,6 +216,10 @@ if __name__ == '__main__':
             if args.run_test:
                 print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
                 exp.test(setting, test=1)
+            
+            if args.run_rolling_test:
+                print('>>>>>>>rolling testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
+                exp.rolling_test_with_error_correction(setting, test=1)
                 
             if args.run_multiple_pred_len:
                 print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))

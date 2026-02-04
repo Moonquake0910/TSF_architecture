@@ -22,7 +22,7 @@ from models import Transformer, Transformer_autoregressive, Transformer_no_patch
 from models import Decoder, Decoder_autoregressive, Prefix_decoder
 from models import Double_decoder, Double_encoder
 
-from utils.tools import EarlyStopping, adjust_learning_rate, visual, test_params_flop
+from utils.tools import EarlyStopping, adjust_learning_rate, visual, visual_with_error_correction, test_params_flop
 from utils.metrics import metric
 
 import numpy as np
@@ -1052,6 +1052,199 @@ class Exp_Main(Exp_Basic):
         # np.save(folder_path + 'true.npy', trues)
         # # np.save(folder_path + 'x.npy', inputx)
         
+        return
+
+    def rolling_test_with_error_correction(self, setting, test=0):
+        """
+        Rolling test with error correction.
+        For each sample, calculate average error on first error_len time points of prediction window.
+        Then apply this error to correct next sample's prediction over the entire prediction window.
+        """
+        # original_batch_size = self.args.batch_size
+        self.args.batch_size = 1
+
+        test_data, test_loader = self._get_data(flag='test')
+
+        # self.args.batch_size = original_batch_size
+
+        if test:
+            print('loading model')
+            self.model.load_state_dict(torch.load(os.path.join('./checkpoints/' + setting, 'checkpoint.pth'), map_location='cuda:0'))
+
+        preds = []
+        preds_corrected = []
+        trues = []
+
+        folder_path = './test_results/' + setting + '/'
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+
+        patch_num = int((self.args.seq_len - self.args.patch_len) / self.args.stride + 1)
+        if self.args.padding_patch == 'end':
+            patch_num += 1
+
+        self.model.eval()
+        with torch.no_grad():
+            error_correction = None
+            error_len = self.args.error_len
+
+            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(test_loader):
+                batch_x = batch_x.float().to(self.device)
+                batch_y = batch_y.float().to(self.device)
+                batch_x_mark = batch_x_mark.float().to(self.device)
+                batch_y_mark = batch_y_mark.float().to(self.device)
+
+                dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float()
+                dec_inp = torch.cat([batch_y[:, :self.args.label_len, :], dec_inp], dim=1).float().to(self.device)
+
+                if self.args.use_amp:
+                    with torch.cuda.amp.autocast():
+                        if 'MoE' in self.args.model:
+                            outputs, aux_loss = self.model(batch_x)
+                        elif 'Linear' in self.args.model or 'TST' in self.args.model or 'Masked_encoder' in self.args.model:
+                            outputs = self.model(batch_x)
+                        else:
+                            if self.args.output_attention:
+                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                            else:
+                                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                else:
+                    if 'autoregressive' in self.args.model:
+                        if 'Transformer' in self.args.model:
+                            start_symbol = batch_x[:, -self.args.patch_len:, ]
+                            output_patch_num = int((self.args.pred_len - self.args.patch_len) / self.args.stride + 1)
+                            assert output_patch_num * self.args.patch_len == self.args.pred_len
+
+                            enc_out, enc_attns = self.model.encode(batch_x, batch_x_mark)
+                            ys = start_symbol
+                            for k in range(output_patch_num):
+                                ys_len = ys.shape[1]
+                                dec_out = self.model.decode(ys, batch_y_mark[:, :ys_len, :], enc_out, enc_attns)
+                                dec_out = dec_out[:, -self.args.patch_len:, :]
+                                ys = torch.cat([ys, dec_out], dim=1)
+
+                            assert ys.shape[1] == self.args.pred_len + self.args.patch_len
+                            outputs = ys[:, -self.args.pred_len:, :]
+                        elif 'Decoder' in self.args.model:
+                            start_symbol = batch_x
+                            output_patch_num = int((self.args.pred_len - self.args.patch_len) / self.args.stride + 1)
+                            assert output_patch_num * self.args.patch_len == self.args.pred_len
+
+                            ys = start_symbol
+                            for k in range(output_patch_num):
+                                ys_len = ys.shape[1]
+                                dec_out = self.model.inference(ys, batch_y_mark[:, :ys_len, :])
+                                dec_out = dec_out[:, -self.args.patch_len:, :]
+                                ys = torch.cat([ys, dec_out], dim=1)
+
+                            outputs = ys[:, -self.args.pred_len:, :]
+                    elif 'Decoder' in self.args.model or 'Prefix_decoder' in self.args.model:
+                        dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, :]).float().to(self.device)
+                        dec_inp = torch.cat([batch_x, dec_inp], dim=1).float().to(self.device)
+                        assert dec_inp.shape[1] == self.args.seq_len + self.args.pred_len
+
+                        outputs = self.model(dec_inp, batch_y_mark)
+                    elif 'random' in self.args.model:
+                        import random
+                        unmasked_patch_num = self.best_patch_num[-1]
+                        random_len = patch_num - unmasked_patch_num
+                        outputs = self.model(batch_x, random_len)
+                    elif 'MoE' in self.args.model:
+                        outputs, aux_loss = self.model(batch_x)
+                    elif 'Linear' in self.args.model or 'TST' in self.args.model:
+                        outputs = self.model(batch_x)
+                    elif 'Masked_encoder' in self.args.model or 'Encoder' in self.args.model:
+                        outputs = self.model(batch_x, batch_x_mark)
+                    else:
+                        if self.args.output_attention:
+                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                        else:
+                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+
+                f_dim = -1 if self.args.features == 'MS' else 0
+                outputs = outputs[:, -self.args.pred_len:, f_dim:]
+                batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
+
+                pred = outputs.detach().cpu().numpy()
+                true = batch_y.detach().cpu().numpy()
+
+                preds.append(pred)
+
+                if error_correction is not None:
+                    pred_corrected = pred - error_correction
+                    preds_corrected.append(pred_corrected)
+                else:
+                    pred_corrected = pred.copy()
+                    preds_corrected.append(pred_corrected)
+
+                if error_len > 0:
+                    error_slice = pred[0, :error_len, :] - true[0, :error_len, :]
+                    error_correction = np.mean(error_slice, axis=(0, 1), keepdims=True)
+                else:
+                    error_correction = None
+
+                trues.append(true)
+
+                if i % 20 == 0:
+                    input = batch_x.detach().cpu().numpy()
+                    if test_data.scale and self.args.inverse:
+                        shape = input.shape
+                        input_vis = test_data.inverse_transform(input[0])
+                        true_vis = test_data.inverse_transform(true[0])
+                        pred_vis = test_data.inverse_transform(pred_corrected[0])
+                        pred_origin_vis = test_data.inverse_transform(pred[0])
+
+                        # gt = np.concatenate((input_vis[:, -1], true_vis[:, -1]), axis=0)
+                        # pd = np.concatenate((input_vis[:, -1], pred_vis[:, -1]), axis=0)
+                        # pd_origin = np.concatenate((input_vis[:, -1], pred_origin_vis[:, -1]), axis=0)
+
+                        gt = true_vis[:, -1]
+                        pd = pred_vis[:, -1]
+                        pd_origin = pred_origin_vis[:, -1]
+                    else:
+                        # gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
+                        # pd = np.concatenate((input[0, :, -1], pred_corrected[0, :, -1]), axis=0)
+                        # pd_origin = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
+
+                        gt = true_vis[:, -1]
+                        pd = pred_vis[:, -1]
+                        pd_origin = pred_origin_vis[:, -1]
+                    visual_with_error_correction(gt, pd, pd_origin, os.path.join(folder_path, str(i) + '.pdf'))
+
+        preds = np.array(preds)
+        preds_corrected = np.array(preds_corrected)
+        trues = np.array(trues)
+
+        preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
+        preds_corrected = preds_corrected.reshape(-1, preds_corrected.shape[-2], preds_corrected.shape[-1])
+        trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
+
+        if test_data.scale and self.args.inverse:
+            shape_preds_corrected = preds_corrected.shape
+            preds_corrected = test_data.inverse_transform(preds_corrected.reshape(-1, preds_corrected.shape[-1])).reshape(shape_preds_corrected)
+            trues = test_data.inverse_transform(trues.reshape(-1, trues.shape[-1])).reshape(trues.shape)
+
+        print("preds_corrected.shape:", preds_corrected.shape)
+
+        mae, mse, rmse, mape, mspe, rse, corr = metric(preds_corrected, trues)
+        print('Rolling Test with Error Correction:')
+        print('mse:{}, mae:{}, rse:{}, mape:{}'.format(mse, mae, rse, mape))
+
+        if test_data.scale and self.args.inverse:
+            shape_preds = preds.shape
+            preds = test_data.inverse_transform(preds.reshape(-1, preds.shape[-1])).reshape(shape_preds)
+        mae_orig, mse_orig, rmse_orig, mape_orig, mspe_orig, rse_orig, corr_orig = metric(preds, trues)
+        print('Original (without correction):')
+        print('mse:{}, mae:{}, rse:{}, mape:{}'.format(mse_orig, mae_orig, rse_orig, mape_orig))
+
+        f = open("result.txt", 'a')
+        f.write(setting + "_rolling_test  \n")
+        f.write('mse:{}, mae:{}, rse:{}, mape:{}\n'.format(mse, mae, rse, mape))
+        f.write('Original (without correction):\n')
+        f.write('mse:{}, mae:{}, rse:{}, mape:{}\n'.format(mse_orig, mae_orig, rse_orig, mape_orig))
+        f.write('\n')
+        f.close()
+
         return
 
     def predict(self, setting, load=False):
