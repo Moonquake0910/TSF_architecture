@@ -101,35 +101,61 @@ class StandardScaler():
         return (data * self.std) + self.mean
 
 
-def visual(true, preds=None, name='./pic/test.pdf'):
+def visual(true, preds=None, name='./pic/test.pdf', time_marks=None):
     """
     Results visualization
+
+    Args:
+        true: 真实值数组
+        preds: 预测值数组
+        name: 保存路径
+        time_marks: 时间标记数组（小时），用于 x 轴显示
     """
-    plt.figure()
+    plt.figure(figsize=(16, 6))
     plt.plot(true, label='GroundTruth', linewidth=2)
     if preds is not None:
         plt.plot(preds, label='Prediction', linewidth=2)
     plt.legend()
-    plt.savefig(name, bbox_inches='tight')
 
-def visual_with_error_correction(true, pred_corrected=None, pred_origin=None, name='./pic/test.pdf'):
+    if time_marks is not None:
+        plt.xticks(range(len(time_marks)), time_marks, rotation=45)
+        plt.xlabel('Hour')
+    else:
+        plt.xlabel('Time Step')
+
+    plt.savefig(name, bbox_inches='tight')
+    plt.close()
+
+def visual_with_error_correction(true=None, pred_corrected=None, pred_origin=None, name='./pic/test.pdf', time_marks=None, title=''):
     fig, ax = plt.subplots(1, 1, figsize=(16, 6))
 
     window_len = 24
-    true = true[:window_len]
 
-    ax.plot(true, label='真实值', linewidth=2, marker='o', markersize=4)
+    if true is not None:
+        true = true[:window_len]
+        ax.plot(true, label='真实值', linewidth=2, marker='o', markersize=4)
 
     if pred_origin is not None:
         pred_origin = pred_origin[:window_len]
-        ax.plot(pred_origin, label='原始预测', linewidth=2, marker='o', markersize=4)
+        ax.plot(pred_origin, label='原始预测', linewidth=2, marker='o', markersize=4, color='tab:orange')
 
     if pred_corrected is not None:
         pred_corrected = pred_corrected[:window_len]
-        ax.plot(pred_corrected, label='修正预测', linewidth=2, marker='o', markersize=4)
+        ax.plot(pred_corrected, label='修正预测', linewidth=2, marker='o', markersize=4, color='tab:green')
 
     ax.legend()
-    ax.set_title('误差修正前后对比')
+    ax.set_title(title)
+
+    if time_marks is not None:
+        time_marks = time_marks[:window_len]
+        # time_marks format: [[month, day, weekday, hour], ...] for each time point
+        # Format as "M-D H" (e.g., "1-15 10" for January 15th, 10:00)
+        labels = [f'{int(m)}-{int(d)} {int(h)}' for m, d, _, h in time_marks]
+        ax.set_xticks(range(len(labels)))
+        ax.set_xticklabels(labels, rotation=45)
+        ax.set_xlabel('日期 (月-日 时)')
+    else:
+        ax.set_xlabel('Time Step')
 
     plt.tight_layout()
     plt.savefig(name, bbox_inches='tight')

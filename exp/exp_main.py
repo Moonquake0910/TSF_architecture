@@ -37,6 +37,7 @@ import time
 import warnings
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas
 
 warnings.filterwarnings('ignore')
 
@@ -1000,7 +1001,7 @@ class Exp_Main(Exp_Basic):
                         input_vis = test_data.inverse_transform(input[0])
                         true_vis = test_data.inverse_transform(true[0])
                         pred_vis = test_data.inverse_transform(pred[0])
-                        
+
                         gt = np.concatenate((input_vis[:, -1], true_vis[:, -1]), axis=0)
                         pd = np.concatenate((input_vis[:, -1], pred_vis[:, -1]), axis=0)
                     else:
@@ -1062,7 +1063,7 @@ class Exp_Main(Exp_Basic):
         """
         # original_batch_size = self.args.batch_size
         self.args.batch_size = 1
-
+        self.args.embed = 'fixed'
         test_data, test_loader = self._get_data(flag='test')
 
         # self.args.batch_size = original_batch_size
@@ -1187,6 +1188,8 @@ class Exp_Main(Exp_Basic):
 
                 if i % 20 == 0:
                     input = batch_x.detach().cpu().numpy()
+                    batch_y_mark_np = batch_y_mark.detach().cpu().numpy()
+
                     if test_data.scale and self.args.inverse:
                         shape = input.shape
                         input_vis = test_data.inverse_transform(input[0])
@@ -1194,22 +1197,36 @@ class Exp_Main(Exp_Basic):
                         pred_vis = test_data.inverse_transform(pred_corrected[0])
                         pred_origin_vis = test_data.inverse_transform(pred[0])
 
-                        # gt = np.concatenate((input_vis[:, -1], true_vis[:, -1]), axis=0)
-                        # pd = np.concatenate((input_vis[:, -1], pred_vis[:, -1]), axis=0)
-                        # pd_origin = np.concatenate((input_vis[:, -1], pred_origin_vis[:, -1]), axis=0)
-
                         gt = true_vis[:, -1]
                         pd = pred_vis[:, -1]
                         pd_origin = pred_origin_vis[:, -1]
                     else:
-                        # gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
-                        # pd = np.concatenate((input[0, :, -1], pred_corrected[0, :, -1]), axis=0)
-                        # pd_origin = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
-
                         gt = true_vis[:, -1]
                         pd = pred_vis[:, -1]
                         pd_origin = pred_origin_vis[:, -1]
-                    visual_with_error_correction(gt, pd, pd_origin, os.path.join(folder_path, str(i) + '.pdf'))
+
+                    # timeenc=0: batch_y_mark shape is [batch, label_len+pred_len, 4] with columns [month, day, weekday, hour]
+                    pred_time_marks = batch_y_mark_np[0, -self.args.pred_len:, :]
+
+                    visual_with_error_correction(gt, pd, pd_origin, os.path.join(folder_path, str(i) + '.pdf'), time_marks=pred_time_marks, title='误差修正前后对比')
+
+                    visual_with_error_correction(pred_origin=pd_origin, name=os.path.join(folder_path, str(i) + '_pred.pdf'), time_marks=pred_time_marks, title='原始预测值')
+
+                    time_marks = batch_y_mark_np[0, -self.args.pred_len:, :]
+                    weekday_names = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+                    dates = [f"{int(m):02d}-{int(d):02d} {weekday_names[int(w)]} {int(h):02d}:00"
+                              for m, d, w, h in zip(time_marks[:, 0], time_marks[:, 1], time_marks[:, 2], time_marks[:, 3])]
+                    df = pandas.DataFrame({
+                        'date': dates,
+                        'true_value': gt,
+                        'pred_corrected': pd,
+                        'pred_original': pd_origin
+                    })
+                    csv_folder_path = os.path.join(folder_path + '/csv')
+                    if not os.path.exists(csv_folder_path):
+                        os.makedirs(csv_folder_path)
+                    csv_path = os.path.join(csv_folder_path, f'{i}.csv')
+                    df.to_csv(csv_path, index=False)
 
         preds = np.array(preds)
         preds_corrected = np.array(preds_corrected)
@@ -1333,9 +1350,13 @@ class Exp_Main(Exp_Basic):
             trues = []
             inputx = []
             
-            folder_path = './test_results/' + setting + '/'
-            if not os.path.exists(folder_path):
-                os.makedirs(folder_path)
+        folder_path = './test_results/' + setting + '/'
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+
+        csv_folder_path = os.path.join(folder_path, 'csv')
+        if not os.path.exists(csv_folder_path):
+            os.makedirs(csv_folder_path)
             
             # 获得的总patch数
             patch_num = int((self.args.seq_len - self.args.patch_len) / self.args.stride + 1)
